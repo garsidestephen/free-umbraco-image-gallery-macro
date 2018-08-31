@@ -1,0 +1,76 @@
+﻿@using System.Text.RegularExpressions
+@inherits Umbraco.Web.Macros.PartialViewMacroPage
+
+@if (Model.MacroParameters["ImageFiles"] != null)
+{
+    string[] imageIds = ((string)Model.MacroParameters["ImageFiles"]).Split(',');
+
+    var imageUrls = new List<string>();
+
+    foreach (string imageId in imageIds)
+    {
+        if (!string.IsNullOrWhiteSpace(imageId))
+        {
+            string imageUrl = Umbraco.Media(int.Parse(imageId)).Url;
+
+            if (!string.IsNullOrWhiteSpace(imageUrl))
+            {
+                imageUrls.Add(imageUrl);
+            }
+        }
+    }
+
+    if (imageUrls.Count > 0)
+    {
+        string[] imageThumbUrls = imageUrls.Where(x => x.Contains("_th.") || x.Contains("-th.")).ToArray();
+
+        if (imageThumbUrls != null && imageThumbUrls.Any())
+        {
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.3.5/jquery.fancybox.min.css" />
+            <div class="container">
+                <div class="row">
+                    <div class="image-gallery" style="display:none;">
+                        @foreach (string imageThumbUrl in imageThumbUrls)
+                        {
+                            string fullImageFilename = Regex.Replace(imageThumbUrl, @"/media/[0-9]+", string.Empty).Replace("_th", string.Empty, StringComparison.InvariantCultureIgnoreCase).Replace("-th", string.Empty, StringComparison.InvariantCultureIgnoreCase);
+                            string fullImageUrl = imageUrls.FirstOrDefault(x => x.EndsWith(fullImageFilename, StringComparison.InvariantCultureIgnoreCase));
+
+                            if (!string.IsNullOrWhiteSpace(fullImageUrl))
+                            {
+                                <div class="col-md-4">
+                                    <a data-fancybox="gallery" href="@fullImageUrl"><img src="@imageThumbUrl" class="media-asset" alt="@fullImageFilename.Replace("-", string.Empty)"></a>
+                                </div>
+                            }
+                        }
+                    </div>
+                </div>
+            </div>
+            <script type="text/javascript">
+                function checkJQueryForPictureGallery() {
+                    clearTimeout(timeoutForPictureGallery);
+
+                    if (window.jQuery) {
+                        $.when(
+                            $.getScript("https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.3.5/jquery.fancybox.min.js"),
+                            $.Deferred(function () {
+                                $('.image-gallery').show();
+                            })
+                        );
+                    }
+                    else {
+                        timeoutForPictureGallery = window.setTimeout("checkJQueryForPictureGallery();", 100);
+                    }
+                }
+                var timeoutForPictureGallery;
+
+                checkJQueryForPictureGallery();
+            </script>
+        }
+    }
+}
+
+
+
+
+
+
