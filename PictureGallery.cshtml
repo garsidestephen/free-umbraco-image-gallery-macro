@@ -1,4 +1,4 @@
-﻿@using System.Text.RegularExpressions
+@using System.Text.RegularExpressions
 @inherits Umbraco.Web.Macros.PartialViewMacroPage
 
 @if (Model.MacroParameters["ImageFiles"] != null)
@@ -26,24 +26,22 @@
 
         if (imageThumbUrls != null && imageThumbUrls.Any())
         {
-            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.3.5/jquery.fancybox.min.css" />
-            <div class="container">
-                <div class="row">
-                    <div class="image-gallery" style="display:none;">
-                        @foreach (string imageThumbUrl in imageThumbUrls)
-                        {
-                            string fullImageFilename = Regex.Replace(imageThumbUrl, @"/media/[0-9]+", string.Empty).Replace("_th", string.Empty, StringComparison.InvariantCultureIgnoreCase).Replace("-th", string.Empty, StringComparison.InvariantCultureIgnoreCase);
-                            string fullImageUrl = imageUrls.FirstOrDefault(x => x.EndsWith(fullImageFilename, StringComparison.InvariantCultureIgnoreCase));
+            string columnClass = Model.MacroParameters["ColumnClass"] == null ? string.Empty : Model.MacroParameters["ColumnClass"].ToString();
 
-                            if (!string.IsNullOrWhiteSpace(fullImageUrl))
-                            {
-                                <div class="col-md-4">
-                                    <a data-fancybox="gallery" href="@fullImageUrl"><img src="@imageThumbUrl" class="media-asset" alt="@fullImageFilename.Replace("-", string.Empty)"></a>
-                                </div>
-                            }
-                        }
-                    </div>
-                </div>
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.3.5/jquery.fancybox.min.css" />
+            <div class="image-gallery" style="display:none;">
+                @foreach (string imageThumbUrl in imageThumbUrls)
+                {
+                    string fullImageFilename = Regex.Replace(imageThumbUrl, @"/media/[0-9]+", string.Empty).Replace("_th", string.Empty, StringComparison.InvariantCultureIgnoreCase).Replace("-th", string.Empty, StringComparison.InvariantCultureIgnoreCase);
+                    string fullImageUrl = imageUrls.FirstOrDefault(x => x.EndsWith(fullImageFilename, StringComparison.InvariantCultureIgnoreCase));
+
+                    if (!string.IsNullOrWhiteSpace(fullImageUrl))
+                    {
+                        <div class="@columnClass">
+                            <a data-fancybox="gallery" href="@fullImageUrl"><img src="@imageThumbUrl" class="media-asset" alt="@fullImageFilename.Replace("-", string.Empty)"></a>
+                        </div>
+                    }
+                }
             </div>
             <script type="text/javascript">
                 function checkJQueryForPictureGallery() {
@@ -68,9 +66,3 @@
         }
     }
 }
-
-
-
-
-
-
